@@ -12,7 +12,7 @@ def test_deadband(DriveTrainFixture):
     assert DriveTrainFixture.deadBand(0.05) == 0.0
 
 def test_positiveInput(DriveTrainFixture):
-    assert DriveTrainFixture.deadBand(0.9) == approx(0.512)
+    assert DriveTrainFixture.deadBand(0.9) == approx(0.6141, abs=1e-3)
 
 def test_negativeInput(DriveTrainFixture):
-    assert DriveTrainFixture.deadBand(-0.7) == approx(-0.216)
+    assert DriveTrainFixture.deadBand(-0.7) == approx(-0.2746, abs=1e-3)

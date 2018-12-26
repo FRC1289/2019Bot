@@ -2,6 +2,7 @@
 
 import wpilib
 from wpilib.command import Command, Scheduler
+from wpilib.command.subsystem import Subsystem
 from commandbased import CommandBasedRobot
 
 
@@ -9,7 +10,7 @@ from subsystems.SingleMotor import SingleMotor
 from subsystems.DriveTrain import DriveTrain
 
 import oi
-from commands.RunMotor import RunMotor
+from commands.AutoProgram import AutoProgram
 from commands.FollowJoystick import FollowJoystick
 
 class PyBot(CommandBasedRobot):
@@ -28,10 +29,11 @@ class PyBot(CommandBasedRobot):
         '''
 
         Command.getRobot = lambda x=0: self
+        
         self.motor = SingleMotor(0, self.logger)
         self.drivetrain = DriveTrain(self.logger)
 
-        self.autonomousProgram = RunMotor()
+        self.autonomousProgram = AutoProgram(10, 0.4, 125)
         self.teleopProgram = FollowJoystick()
         
         '''

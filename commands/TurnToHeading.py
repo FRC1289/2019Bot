@@ -2,6 +2,7 @@ import wpilib
 from wpilib.command import Command
 import robotmap
 
+__all__ = ['TurnToHeading']
 
 class TurnToHeading(Command):
     '''

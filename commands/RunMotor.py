@@ -1,6 +1,8 @@
 from wpilib.command import TimedCommand
 import wpilib
 
+__all__ = ['RunMotor']
+
 class RunMotor(TimedCommand):
     def __init__(self):
         super().__init__('RunMotor', 10.0)

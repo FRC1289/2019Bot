@@ -3,6 +3,8 @@ from wpilib.command.subsystem import Subsystem
 import ctre
 import robotmap
 
+__all__ = ['SingleMotor']
+
 class SingleMotor(Subsystem):
     '''
     This example subsystem controls a single Talon in PercentVBus mode.

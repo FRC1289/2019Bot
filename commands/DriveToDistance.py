@@ -2,6 +2,7 @@ import wpilib
 from wpilib.command import Command
 import robotmap
 
+__all__ = ['DriveToDistance']
 
 class DriveToDistance(Command):
     '''
@@ -41,15 +42,12 @@ class DriveToDistance(Command):
         self.pid.enable()
 
     def execute(self):
-        self.getRobot().logger.info("heading %f speed %f rot %f" % (
-            self.drivetrain.getGyroAngle(), self.speed, self.rotation))
-        #self.getRobot().logger.info("distance %f" % self.drivetrain.getEncoderstuff())
+        self.getRobot().logger.info("heading %f speed %f rot %f, dist %f" % (
+            self.drivetrain.getGyroAngle(), self.speed, self.rotation, self.drivetrain.getDistanceDriven()))
         self.drivetrain.freeDrive(self.speed, self.rotation)
 
     def isFinished(self):
-        # get the distance traveled from the encoders
-        # returbn true when > self.targetDistance
-        pass
+        return True if self.drivetrain.getDistanceDriven() > self.targetDistance else False
 
     def end(self):
         self.pid.disable()

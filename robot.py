@@ -5,13 +5,9 @@ from wpilib.command import Command, Scheduler
 from wpilib.command.subsystem import Subsystem
 from commandbased import CommandBasedRobot
 
-
-from subsystems.SingleMotor import SingleMotor
-from subsystems.DriveTrain import DriveTrain
-
 import oi
-from commands.AutoProgram import AutoProgram
-from commands.FollowJoystick import FollowJoystick
+from subsystems import *
+from commands import *
 
 class PyBot(CommandBasedRobot):
     '''
@@ -30,11 +26,11 @@ class PyBot(CommandBasedRobot):
 
         Command.getRobot = lambda x=0: self
         
-        self.motor = SingleMotor(0, self.logger)
-        self.drivetrain = DriveTrain(self.logger)
+        self.motor = SingleMotor.SingleMotor(3, self.logger)
+        self.drivetrain = DriveTrain.DriveTrain(self.logger)
 
-        self.autonomousProgram = AutoProgram(10, 0.4, 125)
-        self.teleopProgram = FollowJoystick()
+        self.autonomousProgram = AutoProgram.AutoProgram(10, 0.4, 125)
+        self.teleopProgram = FollowJoystick.FollowJoystick()
         
         '''
         Since OI instantiates commands and commands need access to subsystems,

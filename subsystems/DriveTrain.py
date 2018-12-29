@@ -3,6 +3,13 @@ from wpilib.command.subsystem import Subsystem
 import ctre
 import wpilib.drive
 import robotmap
+import math
+
+__all__ = ['DriveTrain']
+
+pulsesPerRotation = 600
+wheelDiameter = 6 #inches
+distancePerPulse = (wheelDiameter * math.pi) / pulsesPerRotation
 
 class DriveTrain(Subsystem):
     '''
@@ -35,6 +42,11 @@ class DriveTrain(Subsystem):
         self.gyro.setPIDSourceType(wpilib.PIDController.PIDSourceType.kDisplacement)
         self.gyro.calibrate()
 
+        encoder_A1 = wpilib.DigitalInput(robotmap.DIO_A1)
+        encoder_A2 = wpilib.DigitalInput(robotmap.DIO_A2)
+        self.RR_encoder = wpilib.Encoder(encoder_A1, encoder_A2, True)
+        self.RR_encoder.setDistancePerPulse(distancePerPulse)
+
     def getGyroAngle(self):
         #self.logger.info("heading: %f" % self.gyro.getAngle())
         return self.gyro.getAngle()
@@ -52,10 +64,12 @@ class DriveTrain(Subsystem):
     # arcade drive
     def freeDrive(self, fwdbk, rot):
         '''
-        use the supplied Y & X, drive per arguments
+        use the supplied forwawrd and rotational args, drive per arguments
         implement a dead band around 0 to avoid jitter
         '''
         #self.logger.info("%f %f" % (fwdbk, rot))
+   #     self.logger.info("%f %d %f" % (self.RR_encoder.getDistance(), self.RR_encoder.getDistancePerPulse(), self.RR_encoder.getRate()))
+                                       
         self.driveTrain.arcadeDrive(self.deadBand(fwdbk), self.deadBand(rot), False)
         #self.drivetrain.feedWatchDog()
         # if self.RF_motor.getSensorCollection().getPulseWidthRiseToRiseUs() == 0:
@@ -67,12 +81,13 @@ class DriveTrain(Subsystem):
     def reset(self):
         self.freeDrive(0,0)
         self.gyro.reset()
+        self.RR_encoder.reset()
 
     def motorSetup(self):
-        self.LF_motor.setInverted(False)
-        self.RF_motor.setInverted(True)
-        self.RR_motor.setInverted(True)
-        self.LF_motor.setSafetyEnabled(False) #True
+        self.LR_motor.setInverted(False)
+        self.RF_motor.setInverted(False) 
+        self.LF_motor.setInverted(False) 
+        self.LF_motor.setSafetyEnabled(False) #should be True
         self.RF_motor.setSafetyEnabled(False)
         self.LR_motor.setSafetyEnabled(False)
         self.RR_motor.setSafetyEnabled(False)
@@ -84,4 +99,6 @@ class DriveTrain(Subsystem):
             return 0.0
         else:
             return pow(rawInput + db, 3) if rawInput < 0 else pow(rawInput - db, 3)
-        
+
+    def getDistanceDriven(self):
+        return self.RR_encoder.getDistance()

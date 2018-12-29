@@ -1,5 +1,7 @@
 from wpilib.command import Command
 
+__all__ = ['FollowJoystick']
+
 class FollowJoystick(Command):
     '''
     This command will read the joystick's y axis and use that value to control
@@ -11,14 +13,17 @@ class FollowJoystick(Command):
 
         self.drivetrain = self.getRobot().drivetrain
         self.requires(self.drivetrain)
+        self.logger = self.getRobot().logger
         
 
     def initialize(self):
-        self.drivetrain.freeDrive(0,0)
+        self.drivetrain.reset()
 
     def execute(self):
         fwdbk = self.getRobot().joystick.getY()
         rot = self.getRobot().joystick.getX()
+        #(a1, a2) = self.drivetrain.getEncoderCount()
+        #self.count = self.count + a1 + a2
         self.drivetrain.freeDrive(fwdbk, rot)
     
 

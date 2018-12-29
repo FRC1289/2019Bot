@@ -1,6 +1,8 @@
 from wpilib.command.commandgroup import CommandGroup
-from commands import TurnToHeading
-from commands import DriveToDistance
+from commands import  TurnToHeading, DriveToDistance
+
+
+__all__ = ['AutoProgram']
 
 class AutoProgram(CommandGroup):
     def __init__(self, heading, speed, distance):

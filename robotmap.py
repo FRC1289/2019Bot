@@ -1,5 +1,5 @@
 CAN_RRmotor = 1
-CAN_RFmotor = 0
+CAN_RFmotor = 4
 CAN_LRmotor = 2
 CAN_LFmotor = 3
 AIO_Gyro = 0

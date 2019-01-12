@@ -33,7 +33,7 @@ class DriveTrain(Subsystem):
         self.LR_motor = ctre.WPI_TalonSRX(robotmap.CAN_LRmotor)
         self.RR_motor = ctre.WPI_TalonSRX(robotmap.CAN_RRmotor)
         self.motorSetup()
-        self.leftSCG = wpilib.SpeedControllerGroup(self.LF_motor, self.RF_motor)
+        self.leftSCG = wpilib.SpeedControllerGroup(self.LF_motor, self.LR_motor)
         self.rightSCG = wpilib.SpeedControllerGroup(self.RF_motor, self.RR_motor)
         self.driveTrain = wpilib.drive.DifferentialDrive(self.leftSCG, self.rightSCG)
         self.driveTrain.stopMotor()

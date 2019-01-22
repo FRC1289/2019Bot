@@ -14,6 +14,7 @@ class FollowJoystick(Command):
         self.drivetrain = self.getRobot().drivetrain
         self.requires(self.drivetrain)
         self.logger = self.getRobot().logger
+        self.setInterruptible(True)
         
 
     def initialize(self):
@@ -28,10 +29,15 @@ class FollowJoystick(Command):
     
 
     def isFinished(self):
-        if self.getRobot().joystick.getRawButton(1):
-            return True
-        else:
-            return False
+        return False
+    #     if self.getRobot().joystick.getRawButton(1):
+    #         return True
+    #     else:
+    #         return False
 
     def end(self):
         self.drivetrain.freeDrive(0,0)
+
+    def interrupted(self):
+        self.logger.info('FS interrupted')
+        self.end()

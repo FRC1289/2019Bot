@@ -6,6 +6,7 @@ from networktables import NetworkTables
 from cscore import CameraServer, UsbCamera
 from time import sleep
 import logging
+import VisionUtils as vu
 
 RIO = 'roborio-1289-frc.local'
 FIELD_OF_VIEW = 58.0 # degrees per logitech C170 tech specs
@@ -13,17 +14,8 @@ CAM_WIDTH = 640
 CAM_HEIGHT = 480
 
 DEGREES_PER_PIXEL = FIELD_OF_VIEW / float(CAM_WIDTH)
-
 CENTER = CAM_WIDTH / 2
-
-def translate(xpos):
-    return xpos - CENTER
-
-def getAngle(xpos):
-    angle = translate(xpos) * DEGREES_PER_PIXEL 
-    return angle
-    
-    
+   
 def main(table):
     cs = CameraServer.getInstance()
     cs.enableLogging()
@@ -54,30 +46,52 @@ def main(table):
             continue
 
         hsv = cv2.cvtColor(rawimg, cv2.COLOR_RGB2HSV)
-        lower = np.array([30, 50, 50])
-        upper = np.array([60,255,255])
+        lower = np.array([30, 0, 0])
+        upper = np.array([90,255,255])
 
         # Threshold the HSV image to get only the selected colors
         mask = cv2.inRange(hsv, lower, upper)
-
+        
         mask, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         if len(contours) == 0:
+            print('no contours')
             continue
         try:
-            target = max(contours, key=cv2.contourArea)
-            targetMoment = cv2.moments(target)
+            contours.sort(key=lambda x: cv2.contourArea(x))
+            # last two are the largest areas
+            targetA = contours[-1]
+            targetB = contours[-2]
+            
+            #target = max(contours, key=cv2.contourArea)
+            #targetMoment = cv2.moments(target)
+            targetAMoment = cv2.moments(targetA)
+            targetBMoment = cv2.moments(targetB)
         except:
+            print('no moments')
             continue
 
         try:
-            cx = int(targetMoment['m10'] / targetMoment['m00'])
-            cy = int(targetMoment['m01'] / targetMoment['m00'])
+            #cx = int(targetMoment['m10'] / targetMoment['m00'])
+            #cy = int(targetMoment['m01'] / targetMoment['m00'])
+            #print("%d %d %d" %(targetAMoment['m10'],  targetAMoment['m00'], targetAMoment['m01']))
+            #print("%d %d %d" %(targetBMoment['m10'],  targetBMoment['m00'], targetBMoment['m01']))
+            cAx = int(targetAMoment['m10'] / targetAMoment['m00'])
+            cAy = int(targetAMoment['m01'] / targetAMoment['m00'])
+            cBx = int(targetBMoment['m10'] / targetBMoment['m00'])
+            cBy = int(targetBMoment['m01'] / targetBMoment['m00'])
         except ZeroDivisionError:
-            cx = 0
-            cy = 0
-        angle = getAngle(cx)
-        print('%d\t%0.2f' % (cx, angle))
+            #cx = 0
+            #cy = 0
+            cAx = 0
+            cAy = 0
+            cBx = 0
+            cBy = 0
+        (midX, midY) = vu.getMidPoint(cAx, cAy, cBx, cBy)
+        distance = vu.getDistance(cAx, cAy, cBx, cBy)
+        angle = vu.getAngle(midX, CENTER, DEGREES_PER_PIXEL)
+        print('%d\t%0.2f\t%0.2f' % (midX, angle, distance))
         table.putNumber('cameraAngle', angle)
+        table.putNumber('distance', distance)
         #print('%d\t%d\t%0.2f\t%0.2f\t%0.2f' % (cx, cy, cx/float(CAM_HEIGHT), FIELD_OF_VIEW/2, angle))
 
         

@@ -4,6 +4,7 @@ import ctre
 import wpilib.drive
 import robotmap
 import math
+from commands import FollowJoystick
 
 __all__ = ['DriveTrain']
 
@@ -46,6 +47,9 @@ class DriveTrain(Subsystem):
         encoder_A2 = wpilib.DigitalInput(robotmap.DIO_A2)
         self.RR_encoder = wpilib.Encoder(encoder_A1, encoder_A2, True)
         self.RR_encoder.setDistancePerPulse(distancePerPulse)
+
+    def initDefaultCommand(self):
+        self.setDefaultCommand(FollowJoystick.FollowJoystick())
 
     def getGyroAngle(self):
         #self.logger.info("heading: %f" % self.gyro.getAngle())

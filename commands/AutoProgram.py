@@ -1,12 +1,12 @@
 from wpilib.command.commandgroup import CommandGroup
-from commands import  TurnToHeading, DriveToDistance
+from commands import DockRobot
 
 
 __all__ = ['AutoProgram']
 
 class AutoProgram(CommandGroup):
-    def __init__(self, heading, speed, distance):
+    def __init__(self):
         super().__init__('AutoProgram')
-        self.addSequential(TurnToHeading.TurnToHeading(heading))
-        self.addSequential(DriveToDistance.DriveToDistance(speed, distance))
-
+        #self.setInterruptible(False)
+        self.addSequential(DockRobot.DockRobot())
+        

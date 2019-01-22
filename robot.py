@@ -5,9 +5,13 @@ from wpilib.command import Command, Scheduler
 from wpilib.command.subsystem import Subsystem
 from commandbased import CommandBasedRobot
 
-import oi
+from wpilib.joystick import Joystick
+from wpilib.buttons.joystickbutton import JoystickButton
+
 from subsystems import *
 from commands import *
+from commands import DockRobot
+import robotmap
 
 class PyBot(CommandBasedRobot):
     '''
@@ -26,29 +30,29 @@ class PyBot(CommandBasedRobot):
 
         Command.getRobot = lambda x=0: self
         
-        self.motor = SingleMotor.SingleMotor(3, self.logger)
+        self.motor = SingleMotor.SingleMotor(2, self.logger)
         self.drivetrain = DriveTrain.DriveTrain(self.logger)
 
-        self.autonomousProgram = AutoProgram.AutoProgram(10, 0.4, 125)
-        self.teleopProgram = FollowJoystick.FollowJoystick()
-        
-        '''
-        Since OI instantiates commands and commands need access to subsystems,
-        OI must be initialized after subsystems.
-        '''
-        self.joystick = oi.getJoystick()
+        self.mainCommand = FollowJoystick.FollowJoystick()
 
-    def autonomousInit(self):
-        self.autonomousProgram.start()
+        self.joystick = Joystick(robotmap.STK_port)
+        self.trigger = JoystickButton(self.joystick, Joystick.ButtonType.kTrigger)
+        self.trigger.whileHeld(AutoProgram.AutoProgram())
+
+
+    # def autonomousInit(self):
+    #     self.mainCommand.start()
         
     #def autonomousPeriodic(self):
-        #Scheduler.getInstance().run()
+    #    Scheduler.getInstance().run()
+    #     if self.mainCommand.isCompleted():
+    #         self.logger.info('main is done')
+    #         self.mainCommand = FollowJoystick.FollowJoystick()
+    #         self.mainCommand.start()
         
 
-    def teleopInit(self):
-        if self.autonomousProgram is not None:
-            self.autonomousProgram.cancel()
-        self.teleopProgram.start()
+    # def teleopInit(self):
+    #     self.mainCommand.start()
         
     # def teleopPeriodic(self):
     #     Scheduler.getInstance().run()

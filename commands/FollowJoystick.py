@@ -22,7 +22,7 @@ class FollowJoystick(Command):
 
     def execute(self):
         fwdbk = self.getRobot().joystick.getY()
-        rot = self.getRobot().joystick.getX()
+        rot = - self.getRobot().joystick.getX()
         #(a1, a2) = self.drivetrain.getEncoderCount()
         #self.count = self.count + a1 + a2
         self.drivetrain.freeDrive(fwdbk, rot)

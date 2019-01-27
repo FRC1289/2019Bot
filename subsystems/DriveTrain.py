@@ -66,6 +66,9 @@ class DriveTrain(Subsystem):
         pass
 
     # arcade drive
+    def drive(self, fwdbk, rot):
+        self.driveTrain.arcadeDrive(fwdbk, rot)
+
     def freeDrive(self, fwdbk, rot):
         '''
         use the supplied forwawrd and rotational args, drive per arguments

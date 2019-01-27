@@ -14,9 +14,10 @@ class FollowCamera(Command):
         self.requires(self.drivetrain)
         self.logger = self.getRobot().logger
         self.angle = 0.0
-        self.speed = speed
+        self.speed = -speed
         self.rotation = 0.0
         self.pidOutput = 0.0
+        self.distance = 0
         
         NetworkTables.addConnectionListener(self.connectionListener, immediateNotify=True)
         self.smartDashboard = NetworkTables.getTable('SmartDashboard')
@@ -29,7 +30,7 @@ class FollowCamera(Command):
                                             lambda: self.getAngle(),
                                             lambda r: self.setRotation(r))
         self.pid.setAbsoluteTolerance(0.01)
-        self.pid.setInputRange(-360.0, 360.0)
+        self.pid.setInputRange(-180.0, 180.0)
         self.pid.setSetpoint(0)
         self.pid.setOutputRange(-1.0, 1.0)
         self.pid.setContinuous(True)
@@ -46,11 +47,14 @@ class FollowCamera(Command):
         self.pid.enable()
         
     def execute(self):
-        self.logger.info('angle %0.2f' % self.angle)
-        self.drivetrain.freeDrive(self.speed, self.rotation)
+        self.logger.info('angle %0.2f %0.2f %0.2f' % (self.angle, self.distance, self.rotation))
+        self.drivetrain.drive(self.speed, self.rotation)
         
     def isFinished(self):
-        return False
+        if self.distance > robotmap.targetDistance:
+            return True
+        else:
+            return False
      
     def end(self):
         self.drivetrain.reset()
@@ -59,6 +63,10 @@ class FollowCamera(Command):
     def valueChanged(self, table, key, value, isNew):
         if key == 'cameraAngle':
             self.angle = value
+        elif key == 'distance':
+           self.distance = value
+        else:
+            pass
         
     def connectionListener(self, connected, info):
         print(info, connected)

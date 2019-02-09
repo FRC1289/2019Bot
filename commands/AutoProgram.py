@@ -8,5 +8,6 @@ class AutoProgram(CommandGroup):
     def __init__(self):
         super().__init__('AutoProgram')
         #self.setInterruptible(False)
-        self.addSequential(FollowCamera.FollowCamera(0.3))
+        self.addSequential(FollowCamera.FollowCamera(0.4))
+        
         

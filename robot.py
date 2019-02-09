@@ -8,9 +8,17 @@ from commandbased import CommandBasedRobot
 from wpilib.joystick import Joystick
 from wpilib.buttons.joystickbutton import JoystickButton
 
-from subsystems import *
-from commands import *
-from commands import DockRobot
+from commands.DeployArm import DeployArm
+from commands.StowArm import StowArm
+from commands.Ingest import Ingest
+from commands.Expel import Expel
+from commands.AutoProgram import AutoProgram
+
+from subsystems.DriveTrain import DriveTrain
+from subsystems.ParameterManager import ParameterManager
+from subsystems.Elevator import Elevator
+from subsystems.Arm import Arm
+from subsystems.Scooper import Scooper
 import robotmap
 
 class PyBot(CommandBasedRobot):
@@ -30,18 +38,32 @@ class PyBot(CommandBasedRobot):
 
         Command.getRobot = lambda x=0: self
         
-        self.motor = SingleMotor.SingleMotor(2, self.logger)
-        self.drivetrain = DriveTrain.DriveTrain(self.logger)
+        self._parameters = ParameterManager(self.logger)
+        #self.motor = SingleMotor.SingleMotor(2, self.logger)
+        self.drivetrain = DriveTrain(self.logger, self._parameters)
+        self.elevator = Elevator(self.logger, self._parameters)
+        self.arm = Arm(self.logger, self._parameters)
+        self.scooper = Scooper(self.logger, self._parameters)
 
-        self.mainCommand = FollowJoystick.FollowJoystick()
+        self.startCommand = DeployArm()
 
         self.joystick = Joystick(robotmap.STK_port)
-        self.trigger = JoystickButton(self.joystick, Joystick.ButtonType.kTrigger)
-        self.trigger.whileHeld(AutoProgram.AutoProgram())
+        self.automaticMode = JoystickButton(self.joystick, robotmap.STK_automode)
+        self.automaticMode.whileHeld(AutoProgram())
+        
+        self.buttonBoard = Joystick(robotmap.BB_port)
+        #self.stowButton = JoystickButton(self.joystick, robotmap.STK_Stow)
+        #self.stowButton.whenPressed(StowArm())
+
+        #self.ingestButton = JoystickButton(self.buttonBoard, robotmap.BB_ingest)
+        #self.ingestButton.whenPressed(Ingest())
+
+        #self.expelButton = JoystickButton(self.buttonBoard, robotmap.BB_expel)
+        #self.expelButton.whileHeld(Expel())
 
 
-    # def autonomousInit(self):
-    #     self.mainCommand.start()
+    def autonomousInit(self):
+         self.startCommand.start()
         
     #def autonomousPeriodic(self):
     #    Scheduler.getInstance().run()

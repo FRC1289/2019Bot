@@ -25,9 +25,10 @@ class DriveTrain(Subsystem):
     May also get vision angle from coprocessor camera to drive to target
     '''
 
-    def __init__(self, logger):
+    def __init__(self, logger, params):
         super().__init__('DriveTrain')
-        self.logger = logger
+        self._logger = logger
+        self._parameters = params
 
         self.LF_motor = ctre.WPI_TalonSRX(robotmap.CAN_LFmotor)
         self.RF_motor = ctre.WPI_TalonSRX(robotmap.CAN_RFmotor)
@@ -43,16 +44,11 @@ class DriveTrain(Subsystem):
         self.gyro.setPIDSourceType(wpilib.PIDController.PIDSourceType.kDisplacement)
         self.gyro.calibrate()
 
-        encoder_A1 = wpilib.DigitalInput(robotmap.DIO_A1)
-        encoder_A2 = wpilib.DigitalInput(robotmap.DIO_A2)
-        self.RR_encoder = wpilib.Encoder(encoder_A1, encoder_A2, True)
-        self.RR_encoder.setDistancePerPulse(distancePerPulse)
-
     def initDefaultCommand(self):
         self.setDefaultCommand(FollowJoystick.FollowJoystick())
 
     def getGyroAngle(self):
-        #self.logger.info("heading: %f" % self.gyro.getAngle())
+        #self._logger.info("heading: %f" % self.gyro.getAngle())
         return self.gyro.getAngle()
 
     # drive to target
@@ -74,21 +70,11 @@ class DriveTrain(Subsystem):
         use the supplied forwawrd and rotational args, drive per arguments
         implement a dead band around 0 to avoid jitter
         '''
-        #self.logger.info("%f %f" % (fwdbk, rot))
-   #     self.logger.info("%f %d %f" % (self.RR_encoder.getDistance(), self.RR_encoder.getDistancePerPulse(), self.RR_encoder.getRate()))
-                                       
         self.driveTrain.arcadeDrive(self.deadBand(fwdbk), self.deadBand(rot), False)
-        #self.drivetrain.feedWatchDog()
-        # if self.RF_motor.getSensorCollection().getPulseWidthRiseToRiseUs() == 0:
-        #     self.logger.info("no quad")
-        # else:
-        #     self.logger.info("%d %d" % (self.RF_motor.getSensorCollection().getQuadraturePosition(),
-        #                                 self.RF_motor.getSensorCollection().getQuadratureVelocity()))
-
+  
     def reset(self):
         self.freeDrive(0,0)
         self.gyro.reset()
-        self.RR_encoder.reset()
 
     def motorSetup(self):
         self.LR_motor.setInverted(False)
@@ -101,7 +87,7 @@ class DriveTrain(Subsystem):
         
 
     def deadBand(self, rawInput):
-        db = robotmap.deadband
+        db = self._parameters.getValue('joystickDeadband')
         if abs(rawInput) < db:
             return 0.0
         else:

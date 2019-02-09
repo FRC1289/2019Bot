@@ -26,12 +26,12 @@ class FollowCamera(Command):
         kP = robotmap.camera_kP
         kD = robotmap.camera_kD
         kI = robotmap.camera_kI
-        self.pid = wpilib.PIDController(kP, kD, kI,
+        self.pid = wpilib.PIDController(kP, kI, kD,
                                             lambda: self.getAngle(),
                                             lambda r: self.setRotation(r))
         self.pid.setAbsoluteTolerance(0.01)
-        self.pid.setInputRange(-180.0, 180.0)
-        self.pid.setSetpoint(0)
+        self.pid.setInputRange(0, 640)
+        self.pid.setSetpoint(320)
         self.pid.setOutputRange(-1.0, 1.0)
         self.pid.setContinuous(True)
         
@@ -47,8 +47,8 @@ class FollowCamera(Command):
         self.pid.enable()
         
     def execute(self):
-        self.logger.info('angle %0.2f %0.2f %0.2f' % (self.angle, self.distance, self.rotation))
-        self.drivetrain.drive(self.speed, self.rotation)
+        self.logger.info('center %d %d %0.2f' % (self.angle, self.distance, self.rotation))
+        self.drivetrain.drive(-0.3, self.rotation)#self.speed, self.rotation)
         
     def isFinished(self):
         if self.distance > robotmap.targetDistance:

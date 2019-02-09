@@ -17,21 +17,29 @@ DEGREES_PER_PIXEL = FIELD_OF_VIEW / float(CAM_WIDTH)
 CENTER = CAM_WIDTH / 2
    
 def main(table):
-    cs = CameraServer.getInstance()
-    cs.enableLogging()
-    
-    cam = cs.startAutomaticCapture()
+    camSrv = CameraServer.getInstance()
+    camSrv.enableLogging()
+
+    cam = UsbCamera("logitech", 0)
+    camSrv.addCamera(cam)
+    #cam = cs.startAutomaticCapture()
     
     cam.setResolution(CAM_WIDTH, CAM_HEIGHT)
     
     # Get a CvSink. This will capture images from the camera
-    cvSink = cs.getVideo(camera=cam)
+    cvSink = camSrv.getVideo() #camera=cam)
     
     # (optional) Setup a CvSource. This will send images back to the Dashboard
-    outputStream = cs.putVideo("Rectangle", CAM_WIDTH, CAM_HEIGHT)
+    outputStream = camSrv.putVideo("Rectangle", CAM_WIDTH, CAM_HEIGHT)
     
     # Allocating new images is very expensive, always try to preallocate
-    rawimg = np.zeros(shape=(CAM_HEIGHT, CAM_WIDTH, 3), dtype=np.uint8)    
+    rawimg = np.zeros(shape=(CAM_HEIGHT, CAM_WIDTH, 3), dtype=np.uint8)
+    # OpenCV ranges
+    # Hue: 0 - 180
+    # Saturation: 0 - 255
+    # Vibrancy: 0 - 255
+    lower = np.array([0, 0, 200])
+    upper = np.array([10, 100, 255])
 
     while True:
         # Tell the CvSink to grab a frame from the camera and put it
@@ -45,9 +53,8 @@ def main(table):
             # skip the rest of the current iteration
             continue
 
+        # convert RGB to HSV
         hsv = cv2.cvtColor(rawimg, cv2.COLOR_RGB2HSV)
-        lower = np.array([30, 0, 0])
-        upper = np.array([90,255,255])
 
         # Threshold the HSV image to get only the selected colors
         mask = cv2.inRange(hsv, lower, upper)
@@ -58,43 +65,23 @@ def main(table):
             continue
         try:
             contours.sort(key=lambda x: cv2.contourArea(x))
-            # last two are the largest areas
-            targetA = contours[-1]
-            targetB = contours[-2]
-            
-            #target = max(contours, key=cv2.contourArea)
-            #targetMoment = cv2.moments(target)
-            targetAMoment = cv2.moments(targetA)
-            targetBMoment = cv2.moments(targetB)
+            target = max(contours, key=cv2.contourArea)
+            boundingBox = cv2.minAreaRect(target)
         except:
-            print('no moments')
+            print('no bounding box')
             continue
 
-        try:
-            #cx = int(targetMoment['m10'] / targetMoment['m00'])
-            #cy = int(targetMoment['m01'] / targetMoment['m00'])
-            #print("%d %d %d" %(targetAMoment['m10'],  targetAMoment['m00'], targetAMoment['m01']))
-            #print("%d %d %d" %(targetBMoment['m10'],  targetBMoment['m00'], targetBMoment['m01']))
-            cAx = int(targetAMoment['m10'] / targetAMoment['m00'])
-            cAy = int(targetAMoment['m01'] / targetAMoment['m00'])
-            cBx = int(targetBMoment['m10'] / targetBMoment['m00'])
-            cBy = int(targetBMoment['m01'] / targetBMoment['m00'])
-        except ZeroDivisionError:
-            #cx = 0
-            #cy = 0
-            cAx = 0
-            cAy = 0
-            cBx = 0
-            cBy = 0
-        (midX, midY) = vu.getMidPoint(cAx, cAy, cBx, cBy)
-        distance = vu.getDistance(cAx, cAy, cBx, cBy)
-        angle = vu.getAngle(midX, CENTER, DEGREES_PER_PIXEL)
-        print('%d\t%0.2f\t%0.2f' % (midX, angle, distance))
+        angle = boundingBox[2]
+        if angle < -45:
+            angle = angle + 90
+            
         table.putNumber('cameraAngle', angle)
-        table.putNumber('distance', distance)
-        #print('%d\t%d\t%0.2f\t%0.2f\t%0.2f' % (cx, cy, cx/float(CAM_HEIGHT), FIELD_OF_VIEW/2, angle))
 
-        
+        # draw a red outline on the output image
+        # so that the user can see what is targeted
+        boxPoints = cv2.boxPoints(boundingBox)
+        boxPoints = np.int0(boxPoints)
+        rawimg = cv2.drawContours(rawimg, [boxPoints], 0, (0,0,255), 2)
         # Give the output stream a new image to display
         outputStream.putFrame(rawimg)    
 

@@ -1,0 +1,60 @@
+
+Subsystems
+Drivetrain - 4x TalonSRX CANs.
+
+Elevator - 1x talon pwm motor, 1x quad encoder, 2x limit switches
+- limit switches are dead-man - cuts power to elevator motor if tripped
+  - not intended to be restartable
+  intended to prevent damage to subsystem
+    - has benefit to run motor until it hits start position so we can
+      reset the subsystem after/before a match
+- encoder used to determine relative position during operation
+  starts at zero & determines +/- from zero. Can be used to determine
+  whether to go up or down based on operator instruction
+- Functions
+ - __init__ zero encoder count
+ - Reset - put back in start posistion
+ - GotoPosistion(enum position)
+ - Kill() stop all action - deadman
+
+Arm - 1x talon pwm motor, 1x quad encoder, 2x limit switches
+- limit switches are deadman as above.
+- encoder counts clicks, IE how many rotations to put arm into desired position
+- Functions
+ - __init__ - zero encoder count
+ - Reset - put back in start posistion
+ - GotoPosistion(enum position)
+ - Kill() stop all action - deadman
+
+Ingester - 1x talon pwm motor
+- simple ingest, expel action - run motor CW, CCW under operator control.
+- Functions:
+  - Ingest
+  - Expel
+
+Commands
+ GotoPosition(position)
+ possible positions:
+  - Stowed - original starting state
+  - Deployed - 1st get-ready on match start
+  - Accept/Deliver hatch - lower level
+  - Deliver hatch - mid level
+  - Deliver Ball - lower level
+  - Deliver Ball - mid level
+  - Pickup ball - ground level
+Uses addParallel to move elevator and arm in concert
+
+Operator Interface
+- Stick A - used for manual control - drive train actuator.
+- Button A - whenPressed(GotoPosition(Initial))
+
+- Stick B -Button Board
+- Button A whenPressed(GotoPosition(Ground))
+- Button B whenPressed(GotoPosition(LowHatch))
+- Button C whenPressed(GotoPosition(LowBall))
+- Button D whenPressed(GotoPosition(MidHatch))
+- Button E whenPressed(GotoPosistion(MidBall))
+- Button F whileHeld(Ingest())
+- Button G whileHeld(Expel())
+
+ 

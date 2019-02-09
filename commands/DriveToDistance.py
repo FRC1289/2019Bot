@@ -26,7 +26,7 @@ class DriveToDistance(Command):
         kP = robotmap.gyro_kP
         kD = robotmap.gyro_kD
         kI = robotmap.gyro_kI
-        self.pid = wpilib.PIDController(kP, kD, kI,
+        self.pid = wpilib.PIDController(kP, kI, kD,
                                             lambda: self.drivetrain.getGyroAngle(),
                                             lambda r: self.setRotation(r))
         self.pid.setAbsoluteTolerance(0.5)

@@ -16,6 +16,9 @@ class Ingest(Command):
 
     def execute(self):
         self._scooper.ingest()
+
+    def isFinished(self):
+        return True if self._scooper.atLimit() else False
              
     def end(self):
         self._scooper.stop()

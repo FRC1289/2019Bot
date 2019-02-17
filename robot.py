@@ -9,13 +9,14 @@ from wpilib.joystick import Joystick
 from wpilib.buttons.joystickbutton import JoystickButton
 
 from commands.DeployArm import DeployArm
-from commands.StowArm import StowArm
 from commands.Ingest import Ingest
 from commands.Expel import Expel
-from commands.AutoProgram import AutoProgram
+from commands.DockRobot import DockRobot
+from commands.AutoProgram import *
+from commands.MoveArm import *
+from commands.MoveElevator import *
 
 from subsystems.DriveTrain import DriveTrain
-from subsystems.ParameterManager import ParameterManager
 from subsystems.Elevator import Elevator
 from subsystems.Arm import Arm
 from subsystems.Scooper import Scooper
@@ -38,29 +39,49 @@ class PyBot(CommandBasedRobot):
 
         Command.getRobot = lambda x=0: self
         
-        self._parameters = ParameterManager(self.logger)
         #self.motor = SingleMotor.SingleMotor(2, self.logger)
-        self.drivetrain = DriveTrain(self.logger, self._parameters)
-        self.elevator = Elevator(self.logger, self._parameters)
-        self.arm = Arm(self.logger, self._parameters)
-        self.scooper = Scooper(self.logger, self._parameters)
+        self.drivetrain = DriveTrain(self.logger)
+        self.elevator = Elevator(self.logger)
+        self.arm = Arm(self.logger)
+        self.scooper = Scooper(self.logger)
 
         self.startCommand = DeployArm()
 
         self.joystick = Joystick(robotmap.STK_port)
         self.automaticMode = JoystickButton(self.joystick, robotmap.STK_automode)
-        self.automaticMode.whileHeld(AutoProgram())
+        self.automaticMode.whileHeld(DockRobot())
         
         self.buttonBoard = Joystick(robotmap.BB_port)
-        #self.stowButton = JoystickButton(self.joystick, robotmap.STK_Stow)
-        #self.stowButton.whenPressed(StowArm())
+        self.armUpButton = JoystickButton(self.buttonBoard, robotmap.BB_ArmUp)
+        self.armDownButton = JoystickButton(self.buttonBoard, robotmap.BB_ArmDown)
+        self.elevatorUpButton = JoystickButton(self.buttonBoard, robotmap.BB_ElevatorUp)
+        self.elevatorDownButton = JoystickButton(self.buttonBoard, robotmap.BB_ElevatorDown)
+        self.ingestButton = JoystickButton(self.buttonBoard, robotmap.BB_ingest)
+        self.expelButton = JoystickButton(self.buttonBoard, robotmap.BB_expel)
+        self.lowHatchButton = JoystickButton(self.buttonBoard, robotmap.BB_LowHatch)
+        self.midHatchButton = JoystickButton(self.buttonBoard, robotmap.BB_MidHatch)
+        self.lowCargoButton = JoystickButton(self.buttonBoard, robotmap.BB_LowCargo)
+        self.midCargoButton = JoystickButton(self.buttonBoard, robotmap.BB_MidCargo)
 
-        #self.ingestButton = JoystickButton(self.buttonBoard, robotmap.BB_ingest)
-        #self.ingestButton.whenPressed(Ingest())
+        self.armUpButton.whenPressed(MoveArmUp())
+        self.armDownButton.whenPressed(MoveArmDown())
+        self.armUpButton.whenReleased(CancelArmMotion())
+        self.armDownButton.whenReleased(CancelArmMotion())
+        
+        self.elevatorUpButton.whenPressed(MoveElevatorUp())
+        self.elevatorDownButton.whenPressed(MoveElevatorDown())
+        self.elevatorUpButton.whenReleased(CancelElevatorMotion())
+        self.elevatorDownButton.whenReleased(CancelElevatorMotion())
 
-        #self.expelButton = JoystickButton(self.buttonBoard, robotmap.BB_expel)
-        #self.expelButton.whileHeld(Expel())
+        self.ingestButton.whenPressed(Ingest())
+        self.expelButton.whenPressed(Expel())
 
+        self.lowHatchButton.whenPressed(PositionLowHatch())
+        self.midHatchButton.whenPressed(PositionMidHatch())
+        self.lowCargoButton.whenPressed(PositionLowCargo())
+        self.midCargoButton.whenPressed(PositionMidCargo())
+        
+ 
 
     def autonomousInit(self):
          self.startCommand.start()

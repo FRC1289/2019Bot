@@ -11,6 +11,7 @@ __all__ = ['DriveTrain']
 pulsesPerRotation = 600
 wheelDiameter = 6 #inches
 distancePerPulse = (wheelDiameter * math.pi) / pulsesPerRotation
+PID_INDEX = 0
 
 class DriveTrain(Subsystem):
     '''
@@ -25,10 +26,9 @@ class DriveTrain(Subsystem):
     May also get vision angle from coprocessor camera to drive to target
     '''
 
-    def __init__(self, logger, params):
+    def __init__(self, logger):
         super().__init__('DriveTrain')
         self._logger = logger
-        self._parameters = params
 
         self.LF_motor = ctre.WPI_TalonSRX(robotmap.CAN_LFmotor)
         self.RF_motor = ctre.WPI_TalonSRX(robotmap.CAN_RFmotor)
@@ -40,30 +40,20 @@ class DriveTrain(Subsystem):
         self.driveTrain = wpilib.drive.DifferentialDrive(self.leftSCG, self.rightSCG)
         self.driveTrain.stopMotor()
 
-        self.gyro = wpilib.AnalogGyro(robotmap.AIO_Gyro)
-        self.gyro.setPIDSourceType(wpilib.PIDController.PIDSourceType.kDisplacement)
-        self.gyro.calibrate()
+        # self.gyro = wpilib.AnalogGyro(robotmap.AIO_Gyro)
+        # self.gyro.setPIDSourceType(wpilib.PIDController.PIDSourceType.kDisplacement)
+        # self.gyro.calibrate()
 
     def initDefaultCommand(self):
         self.setDefaultCommand(FollowJoystick.FollowJoystick())
 
-    def getGyroAngle(self):
-        #self._logger.info("heading: %f" % self.gyro.getAngle())
-        return self.gyro.getAngle()
-
-    # drive to target
-    def driveToTarget(self):
-        '''
-        use the angle supplied by the coprocessor to drive to the target
-        May need an ultrasonic sensor to detect distance
-        Will need to do the math to make sure angle of approach is 
-        purpendicular, and not oblique
-        '''
-        pass
+    # def getGyroAngle(self):
+    #     #self._logger.info("heading: %f" % self.gyro.getAngle())
+    #     return self.gyro.getAngle()
 
     # arcade drive
     def drive(self, fwdbk, rot):
-        self.driveTrain.arcadeDrive(fwdbk, rot)
+        self.driveTrain.arcadeDrive(fwdbk, rot/2.0)
 
     def freeDrive(self, fwdbk, rot):
         '''
@@ -74,24 +64,28 @@ class DriveTrain(Subsystem):
   
     def reset(self):
         self.freeDrive(0,0)
-        self.gyro.reset()
+#        self.gyro.reset()
 
     def motorSetup(self):
-        self.LR_motor.setInverted(False)
+        self.LR_motor.setInverted(True)
         self.RF_motor.setInverted(False) 
         self.LF_motor.setInverted(False) 
         self.LF_motor.setSafetyEnabled(False) #should be True
         self.RF_motor.setSafetyEnabled(False)
         self.LR_motor.setSafetyEnabled(False)
         self.RR_motor.setSafetyEnabled(False)
-        
+        self.LF_motor.configSelectedFeedbackSensor(self.LF_motor.FeedbackDevice.QuadEncoder, PID_INDEX, 0)
+        self.RF_motor.configSelectedFeedbackSensor(self.RF_motor.FeedbackDevice.QuadEncoder, PID_INDEX, 0)
 
     def deadBand(self, rawInput):
-        db = self._parameters.getValue('joystickDeadband')
+        db = robotmap.JoystickDeadband
         if abs(rawInput) < db:
             return 0.0
         else:
             return pow(rawInput + db, 3) if rawInput < 0 else pow(rawInput - db, 3)
 
-    def getDistanceDriven(self):
-        return self.RR_encoder.getDistance()
+
+    def encoderPosition(self):
+        left = self.LF_motor.getSelectedSensorPosition(PID_INDEX)
+        right = self.RF_motor.getSelectedSensorPosition(PID_INDEX)
+        return int ((left + right) / 2.0)

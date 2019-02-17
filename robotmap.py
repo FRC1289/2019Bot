@@ -8,12 +8,6 @@ PWM_Arm = 1
 PWM_Scooper = 2
 
 AIO_Gyro = 0
-STK_port = 0
-BB_port = 1
-STK_automode = 1
-STK_Stow = 6
-BB_ingest = 2
-BB_expel = 3
 
 DIO_elevatorASource = 0
 DIO_elevatorBsource = 1
@@ -21,10 +15,36 @@ DIO_elevatorLowerLimit = 2
 DIO_elevatorUpperLimit = 3
 DIO_armASource = 4
 DIO_armBsource = 5
-DIO_armLowerLimit = 6
-DIO_armUpperLimit = 7
+DIO_scooperLimit = 6
+DIO_armLowerLimit = 7
+DIO_armUpperLimit = 8
 
-camera_kP = 0.005
-camera_kI = 0.0
+STK_port = 0
+BB_port = 1
+
+STK_automode = 1
+
+BB_ingest = 1
+BB_expel = 2
+BB_ArmUp = 3  
+BB_ArmDown = 4
+BB_ElevatorUp = 5
+BB_ElevatorDown = 6
+BB_LowHatch = 7
+BB_MidHatch = 8
+BB_LowCargo = 9
+BB_MidCargo = 10
+
+camera_kP = 0.006
+camera_kI = 0
 camera_kD = 0.0
-targetDistance = 300
+targetDistance = 300 # calibrate such that stops with 10" to go, then use encoders
+dockingDistance = 100 # encoder clicks to get to final position
+approachSpeed = 0.4
+
+ArmSpeed = 0.5
+ElevatorSpeed = 0.5
+IngestSpeed = 0.1
+ExpelSpeed = 1.0
+JoystickDeadband = 0.05
+

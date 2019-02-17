@@ -5,9 +5,7 @@ from pytest import approx
 def DriveTrainFixture():
     from wpilib.command.subsystem import Subsystem
     from subsystems.DriveTrain import DriveTrain
-    from subsystems.ParameterManager import ParameterManager
-    pm = ParameterManager(0)
-    return DriveTrain(0,pm)
+    return DriveTrain(0)
 
 
 def test_deadband(DriveTrainFixture):

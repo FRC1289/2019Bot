@@ -37,7 +37,7 @@ def main(table):
     # Hue: 0 - 180
     # Saturation: 0 - 255
     # Vibrancy: 0 - 255
-    lower = np.array([30, 50, 50])
+    lower = np.array([30, 50, 175])
     upper = np.array([60,255,255])
   
 
@@ -81,18 +81,23 @@ def main(table):
             target2Cx = 0
             target2Cy = 0
 
+        distance = int(vu.getDistance(target1Cx, target1Cy, target2Cx, target2Cy))
         cv2.drawContours(rawimg, [target1], -1, (0, 0, 255), 2)
         cv2.drawContours(rawimg, [target2], -1, (0, 0, 255), 2)
-        cv2.circle(rawimg, (target1Cx, target1Cy), 7, (255, 0, 0), -1)
-        cv2.circle(rawimg, (target2Cx, target2Cy), 7, (255, 0, 0), -1)
-
 	# figure the midpoint of x1,y1 and x2,y2, get the angle for midX
         midX, midY = vu.getMidPoint(target1Cx, target1Cy, target2Cx, target2Cy)
         midX = int(midX)
         midY = int(midY)
-        cv2.circle(rawimg, (midX, midY), 7, (0, 0, 255), -1)
+        if distance > 100:
+            cv2.circle(rawimg, (target1Cx, target1Cy), 7, (255, 0, 0), -1)
+            cv2.circle(rawimg, (target2Cx, target2Cy), 7, (255, 0, 0), -1)
+            cv2.drawMarker(rawimg, (midX, midY), (0,0,255), cv2.MARKER_CROSS, 20, 3)
+
+        cv2.line(rawimg, (336,0), (336,480), (0,255,0), 2)
+        cv2.line(rawimg, (304,0), (304,480), (0,255,0), 2)
+        #cv2.circle(rawimg, (midX, midY), 7, (0, 0, 255), -1)
         #angle = vu.getAngle(midX, CENTER, DEGREES_PER_PIXEL)
-        distance = int(vu.getDistance(target1Cx, target1Cy, target2Cx, target2Cy))
+
         print('%d\t%d' % (midX, distance))
         table.putNumber('cameraAngle', midX)
         table.putNumber('distance', distance)

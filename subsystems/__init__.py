@@ -1,4 +1,7 @@
 __all__ = [
     'DriveTrain',
-    'SingleMotor'
+    'SingleMotor',
+    'Arm',
+    'Elevator',
+    'Scooper'
     ]

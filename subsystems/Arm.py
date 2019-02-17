@@ -1,5 +1,5 @@
 import wpilib
-from enum import Enum, auto
+from enum import Enum
 from wpilib.command.subsystem import Subsystem
 import robotmap
 
@@ -10,18 +10,17 @@ class ArmLimit(Enum):
         UPPER = 2
 	
 class ArmPosition(Enum):
-        GROUND = auto()
-        LOWER_HATCH = auto()
-        MID_HATCH = auto()
-        LOWER_CARGO = auto()
-        MID_CARGO = auto()
-        STOWED = auto()
-        INITIAL_DEPLOY = auto()
+        GROUND = 10
+        LOWER_HATCH = 20
+        MID_HATCH = 30
+        LOWER_CARGO = 40
+        MID_CARGO = 50
+        STOWED = 60
+        INITIAL_DEPLOY = 70
 
 class Arm(Subsystem):
-	def __init__(self, logger, params):
+	def __init__(self, logger):
 		super().__init__('Arm')
-		self._parameters = params
 		self._logger = logger
 		self._motor = wpilib.Talon(robotmap.PWM_Arm)
 		self._encoder = wpilib.Encoder(robotmap.DIO_armASource, robotmap.DIO_armBsource,
@@ -29,28 +28,16 @@ class Arm(Subsystem):
 		self._encoder.reset()
 		self._lowerLimitSwitch = wpilib.DigitalInput(robotmap.DIO_armLowerLimit)
 		self._upperLimitSwitch = wpilib.DigitalInput(robotmap.DIO_armUpperLimit)
-		self._positionMap = {}
-		self.InitializePositionMap()
-		
-	def InitializePositionMap(self):
-		self._positionMap[ArmPosition.GROUND] = self._parameters.getValue('armGround')
-		self._positionMap[ArmPosition.LOWER_HATCH] = self._parameters.getValue('armLowerHatch')
-		self._positionMap[ArmPosition.MID_HATCH] = self._parameters.getValue('armMidHatch')
-		self._positionMap[ArmPosition.LOWER_CARGO] = self._parameters.getValue('armLowerCargo')
-		self._positionMap[ArmPosition.MID_CARGO] = self._parameters.getValue('armMidCargo')
-		self._positionMap[ArmPosition.STOWED] = self._parameters.getValue('armStowed')
-		
-	def PositionValue(self, position):
-		return self._positionMap[position]
 
+		
 	def currentPosition(self):
 		return self._encoder.get()
 		
 	def atLimit(self, limit):
 		if limit == ArmLimit.LOWER:
-			return self._lowerLimitSwitch.get()
+			return not self._lowerLimitSwitch.get()
 		elif limit == ArmLimit.UPPER:
-			return self._upperLimitSwitch.get()
+			return not self._upperLimitSwitch.get()
 		else:
 			return False
 		

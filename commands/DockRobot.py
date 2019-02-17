@@ -1,34 +1,12 @@
-from wpilib.command import Command
-import wpilib
+from wpilib.command.commandgroup import CommandGroup
+from commands.FollowCamera import FollowCamera
+from commands.EncoderDrive import EncoderDrive
+import robotmap
 
 __all__ = ['DockRobot']
 
-class DockRobot(Command):
+class DockRobot(CommandGroup):
     def __init__(self):
-        super().__init__('DockCommand', 10)
-        self.drivetrain = self.getRobot().drivetrain
-        self.requires(self.drivetrain)
-        self.logger = self.getRobot().logger
-
-    def initialize(self):
-        self.logger.info('init %s' % id(self))
-
-    def execute(self):
-        self.logger.info('DR exec')
-        self.drivetrain.freeDrive(0.5, 0)
-
-    def isFinished(self):
-        return False
-    #     if self.isTimedOut:
-    #         return True
-    #     else:
-    #         return False
-     
-    def end(self):
-        self.logger.info('ended')
-        
-    def interrupted(self):
-        self.logger.info('interrupted')
-
-    def cancel(self):
-        self.logger.info('cancel')
+        super().__init__('DockRobot')
+        self.addSequential(FollowCamera(robotmap.approachSpeed))
+        self.addSequential(EncoderDrive(robotmap.approachSpeed, robotmap.dockingDistance))

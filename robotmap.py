@@ -18,6 +18,7 @@ DIO_armBsource = 5
 DIO_scooperLimit = 6
 DIO_armLowerLimit = 7
 DIO_armUpperLimit = 8
+DIO_armInGameLowerLimit = 9
 
 STK_port = 0
 BB_port = 1
@@ -26,14 +27,15 @@ STK_automode = 1
 
 BB_ingest = 1
 BB_expel = 2
-BB_ArmUp = 3  
-BB_ArmDown = 4
+BB_ArmUp = 4  
+BB_ArmDown = 3
 BB_ElevatorUp = 5
 BB_ElevatorDown = 6
 BB_LowHatch = 7
 BB_MidHatch = 8
 BB_LowCargo = 9
 BB_MidCargo = 10
+BB_ArmMaxDown = 11
 
 camera_kP = 0.006
 camera_kI = 0
@@ -44,7 +46,10 @@ approachSpeed = 0.4
 
 ArmSpeed = 0.5
 ElevatorSpeed = 0.5
-IngestSpeed = 0.1
+IngestSpeed = 0.2
 ExpelSpeed = 1.0
 JoystickDeadband = 0.05
 
+Deploy_Delay = 2.0
+
+motorSafetyTimeout = 0.2

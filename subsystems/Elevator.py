@@ -41,7 +41,8 @@ class Elevator(Subsystem):
 			return False
 		
 	def move(self, speed):
-		self._motor.set(speed)
+                self._motor.set(speed)
+                #self._logger.info("%d" % self._encoder.get())
 		
 	def stop(self):
 		self._motor.set(0)

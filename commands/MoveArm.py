@@ -1,11 +1,12 @@
 from wpilib.command import Command
+from wpilib.driverstation import DriverStation
 import wpilib
 from subsystems.Arm import Arm, ArmLimit
 from networktables import NetworkTables
 import robotmap
 
 
-__all__ = ['MoveArmUp', 'MoveArmDown', 'CancelArmMotion', 'MoveArmToPosition']
+__all__ = ['MoveArmUp', 'MoveArmDown', 'CancelArmMotion', 'MoveArmToPosition', 'MoveArmDownToBottom']
 
 class MoveArmUp(Command):
     def __init__(self):
@@ -18,9 +19,10 @@ class MoveArmUp(Command):
 
     def initialize(self):
         self._arm.stop()
+        self._smartDashboard.putString("ArmPosition", str(self._arm.currentPosition()))
 
     def execute(self):
-        self._logger.info("UP")
+        #self._logger.info("UP")
         self._arm.move(self._speed)
         self._smartDashboard.putString("ArmPosition", str(self._arm.currentPosition()))
         
@@ -31,11 +33,11 @@ class MoveArmUp(Command):
             return False
 
     def interrupted(self):
-        self._logger.info("UP interrupted")
+        #self._logger.info("UP interrupted")
         self.end()
      
     def end(self):
-        self._logger.info("UP ended")
+        #self._logger.info("UP ended")
         self._arm.stop()
 
 class MoveArmDown(Command):
@@ -49,24 +51,25 @@ class MoveArmDown(Command):
 
     def initialize(self):
         self._arm.stop()
+        self._smartDashboard.putString("ArmPosition", str(self._arm.currentPosition()))
 
     def execute(self):
-        self._logger.info("DOWN")
+        #self._logger.info("DOWN")
         self._arm.move(self._speed)
         self._smartDashboard.putString("ArmPosition", str(self._arm.currentPosition()))
         
     def isFinished(self):
-        if self._arm.atLimit(ArmLimit.LOWER):
+        if self._arm.atLimit(ArmLimit.IN_GAME_LOWER):
             return True
         else:
             return False
 
     def interrupted(self):
-        self._logger.info("DOWN interrupted")
+        #self._logger.info("DOWN interrupted")
         self.end()
      
     def end(self):
-        self._logger.info("DOWN ended")
+        #self._logger.info("DOWN ended")
         self._arm.stop()
 
 
@@ -82,6 +85,7 @@ class MoveArmToPosition(Command):
 
     def initialize(self):
         self._arm.stop()
+        self._smartDashboard.putString("ArmPosition", str(self._arm.currentPosition()))
         if self._arm.currentPosition() > self._targetPosition.value:
             self._speed = - self._speed
 
@@ -90,11 +94,16 @@ class MoveArmToPosition(Command):
         self._smartDashboard.putString("ArmPosition", str(self._arm.currentPosition()))
         
     def isFinished(self):
-        if self._arm.currentPosition == self._targetPosition.value:
-            return True
+        rtn = False
+        if self._arm.atLimit(ArmLimit.UPPER):
+            rtn = True
+        elif self._arm.currentPosition == self._targetPosition.value:
+            rtn = True
+        elif self._speed < 0 and self._arm.atLimit(ArmLimit.IN_GAME_LOWER):
+            rtn = True
         else:
-            return False
-
+            return rtn
+    
     def interrupted(self):
         self.end()
      
@@ -110,4 +119,36 @@ class CancelArmMotion(Command):
 
     def initialize(self):
         self._logger.info("Cancel Arm Motion")
+        self._arm.stop()
+
+class MoveArmDownToBottom(Command):
+    def __init__(self):
+        super().__init__('MoveArmDownToBottom')
+        self._arm = self.getRobot().arm
+        self.requires(self._arm)
+        self._logger = self.getRobot().logger
+        self._smartDashboard = NetworkTables.getTable('SmartDashboard')
+        self._speed = robotmap.ArmSpeed
+
+    def initialize(self):
+        self._arm.stop()
+        self._smartDashboard.putString("ArmPosition", str(self._arm.currentPosition()))
+
+    def execute(self):
+        #self._logger.info("DOWN")
+        self._arm.move(self._speed)
+        self._smartDashboard.putString("ArmPosition", str(self._arm.currentPosition()))
+        
+    def isFinished(self):
+        if self._arm.atLimit(ArmLimit.LOWER):
+            return True
+        else:
+            return False
+
+    def interrupted(self):
+        #self._logger.info("DOWN interrupted")
+        self.end()
+     
+    def end(self):
+        #self._logger.info("DOWN ended")
         self._arm.stop()

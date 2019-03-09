@@ -8,6 +8,7 @@ __all__ = ['Arm', 'ArmLimit', 'ArmPosition']
 class ArmLimit(Enum):
         LOWER = 1
         UPPER = 2
+        IN_GAME_LOWER = 3
 	
 class ArmPosition(Enum):
         GROUND = 10
@@ -20,26 +21,29 @@ class ArmPosition(Enum):
 
 class Arm(Subsystem):
 	def __init__(self, logger):
-		super().__init__('Arm')
-		self._logger = logger
-		self._motor = wpilib.Talon(robotmap.PWM_Arm)
-		self._encoder = wpilib.Encoder(robotmap.DIO_armASource, robotmap.DIO_armBsource,
+                super().__init__('Arm')
+                self._logger = logger
+                self._motor = wpilib.Talon(robotmap.PWM_Arm)
+                self._encoder = wpilib.Encoder(robotmap.DIO_armASource, robotmap.DIO_armBsource,
                                                False, wpilib.Encoder.EncodingType.k1X)
-		self._encoder.reset()
-		self._lowerLimitSwitch = wpilib.DigitalInput(robotmap.DIO_armLowerLimit)
-		self._upperLimitSwitch = wpilib.DigitalInput(robotmap.DIO_armUpperLimit)
+                self._encoder.reset()
+                self._lowerLimitSwitch = wpilib.DigitalInput(robotmap.DIO_armLowerLimit)
+                self._upperLimitSwitch = wpilib.DigitalInput(robotmap.DIO_armUpperLimit)
+                self._inGameLowerLimitSwitch = wpilib.DigitalInput(robotmap.DIO_armInGameLowerLimit)
 
 		
 	def currentPosition(self):
 		return self._encoder.get()
 		
 	def atLimit(self, limit):
-		if limit == ArmLimit.LOWER:
-			return not self._lowerLimitSwitch.get()
-		elif limit == ArmLimit.UPPER:
-			return not self._upperLimitSwitch.get()
-		else:
-			return False
+                if limit == ArmLimit.LOWER:
+                        return not self._lowerLimitSwitch.get()
+                elif limit == ArmLimit.UPPER:
+                        return not self._upperLimitSwitch.get()
+                elif limit == ArmLimit.IN_GAME_LOWER:
+                        return not self._inGameLowerLimitSwitch.get()
+                else:
+                        return False
 		
 	def move(self, speed):
 		self._motor.set(speed)

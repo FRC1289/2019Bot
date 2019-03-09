@@ -4,6 +4,7 @@ import wpilib
 from wpilib.command import Command, Scheduler
 from wpilib.command.subsystem import Subsystem
 from commandbased import CommandBasedRobot
+from networktables import NetworkTables
 
 from wpilib.joystick import Joystick
 from wpilib.buttons.joystickbutton import JoystickButton
@@ -15,6 +16,7 @@ from commands.DockRobot import DockRobot
 from commands.AutoProgram import *
 from commands.MoveArm import *
 from commands.MoveElevator import *
+from commands.CancelSubsystem import *
 
 from subsystems.DriveTrain import DriveTrain
 from subsystems.Elevator import Elevator
@@ -48,12 +50,14 @@ class PyBot(CommandBasedRobot):
         self.startCommand = DeployArm()
 
         self.joystick = Joystick(robotmap.STK_port)
-        self.automaticMode = JoystickButton(self.joystick, robotmap.STK_automode)
-        self.automaticMode.whileHeld(DockRobot())
+      #  self.automaticMode = JoystickButton(self.joystick, robotmap.STK_automode)
+       # self.automaticMode.whenPressed(DockRobot())
+       # self.automaticMode.whenReleased(CancelSubsystem(Cancel.DRIVETRAIN))
         
         self.buttonBoard = Joystick(robotmap.BB_port)
         self.armUpButton = JoystickButton(self.buttonBoard, robotmap.BB_ArmUp)
         self.armDownButton = JoystickButton(self.buttonBoard, robotmap.BB_ArmDown)
+        self.armMaxDownButton = JoystickButton(self.buttonBoard, robotmap.BB_ArmMaxDown)
         self.elevatorUpButton = JoystickButton(self.buttonBoard, robotmap.BB_ElevatorUp)
         self.elevatorDownButton = JoystickButton(self.buttonBoard, robotmap.BB_ElevatorDown)
         self.ingestButton = JoystickButton(self.buttonBoard, robotmap.BB_ingest)
@@ -65,22 +69,25 @@ class PyBot(CommandBasedRobot):
 
         self.armUpButton.whenPressed(MoveArmUp())
         self.armDownButton.whenPressed(MoveArmDown())
-        self.armUpButton.whenReleased(CancelArmMotion())
-        self.armDownButton.whenReleased(CancelArmMotion())
+        self.armUpButton.whenReleased(CancelSubsystem(Cancel.ARM))
+        self.armDownButton.whenReleased(CancelSubsystem(Cancel.ARM))
+        self.armMaxDownButton.whenPressed(MoveArmDownToBottom())
         
         self.elevatorUpButton.whenPressed(MoveElevatorUp())
         self.elevatorDownButton.whenPressed(MoveElevatorDown())
-        self.elevatorUpButton.whenReleased(CancelElevatorMotion())
-        self.elevatorDownButton.whenReleased(CancelElevatorMotion())
+        self.elevatorUpButton.whenReleased(CancelSubsystem(Cancel.ELEVATOR))
+        self.elevatorDownButton.whenReleased(CancelSubsystem(Cancel.ELEVATOR))
 
         self.ingestButton.whenPressed(Ingest())
         self.expelButton.whenPressed(Expel())
 
-        self.lowHatchButton.whenPressed(PositionLowHatch())
-        self.midHatchButton.whenPressed(PositionMidHatch())
-        self.lowCargoButton.whenPressed(PositionLowCargo())
-        self.midCargoButton.whenPressed(PositionMidCargo())
-        
+        # self.lowHatchButton.whenPressed(PositionLowHatch())
+        # self.midHatchButton.whenPressed(PositionMidHatch())
+        # self.lowCargoButton.whenPressed(PositionLowCargo())
+        # self.midCargoButton.whenPressed(PositionMidCargo())
+
+        self._smartDashboard = NetworkTables.getTable('SmartDashboard')
+        self._smartDashboard.putString("ArmLimit", "InGame")
  
 
     def autonomousInit(self):

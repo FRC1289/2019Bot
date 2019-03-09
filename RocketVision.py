@@ -37,8 +37,8 @@ def main(table):
     # Hue: 0 - 180
     # Saturation: 0 - 255
     # Vibrancy: 0 - 255
-    lower = np.array([30, 50, 175])
-    upper = np.array([60,255,255])
+    lower = np.array([ 0,  0, 225])
+    upper = np.array([10, 10, 255])
   
 
     while True:
@@ -99,7 +99,7 @@ def main(table):
         #angle = vu.getAngle(midX, CENTER, DEGREES_PER_PIXEL)
 
         print('%d\t%d' % (midX, distance))
-        table.putNumber('cameraAngle', midX)
+        table.putNumber('midX', midX)
         table.putNumber('distance', distance)
 
         # Give the output stream a new image to display

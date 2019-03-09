@@ -66,14 +66,21 @@ class DriveTrain(Subsystem):
         self.freeDrive(0,0)
 #        self.gyro.reset()
 
+    def stop(self):
+        self.reset()
+        
     def motorSetup(self):
         self.LR_motor.setInverted(True)
         self.RF_motor.setInverted(False) 
         self.LF_motor.setInverted(False) 
-        self.LF_motor.setSafetyEnabled(False) #should be True
-        self.RF_motor.setSafetyEnabled(False)
-        self.LR_motor.setSafetyEnabled(False)
-        self.RR_motor.setSafetyEnabled(False)
+        self.LF_motor.setSafetyEnabled(True)
+        self.RF_motor.setSafetyEnabled(True)
+        self.LR_motor.setSafetyEnabled(True)
+        self.RR_motor.setSafetyEnabled(True)
+        self.LF_motor.setExpiration(robotmap.motorSafetyTimeout)
+        self.RF_motor.setExpiration(robotmap.motorSafetyTimeout)
+        self.LR_motor.setExpiration(robotmap.motorSafetyTimeout)
+        self.RR_motor.setExpiration(robotmap.motorSafetyTimeout)
         self.LF_motor.configSelectedFeedbackSensor(self.LF_motor.FeedbackDevice.QuadEncoder, PID_INDEX, 0)
         self.RF_motor.configSelectedFeedbackSensor(self.RF_motor.FeedbackDevice.QuadEncoder, PID_INDEX, 0)
 

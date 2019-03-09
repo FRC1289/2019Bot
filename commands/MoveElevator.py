@@ -1,6 +1,7 @@
 from wpilib.command import Command
 import wpilib
-from subsystems.Elevator import Elevator, ElevatorLimit
+from wpilib import Timer 
+from subsystems.Elevator import *
 from networktables import NetworkTables
 import robotmap
 
@@ -17,6 +18,7 @@ class MoveElevatorUp(Command):
 
     def initialize(self):
         self._elevator.stop()
+        self._smartDashboard.putString("ElevatorPosition", str(self._elevator.currentPosition()))
 
     def execute(self):
         self._elevator.move(self._speed)
@@ -46,6 +48,7 @@ class MoveElevatorDown(Command):
 
     def initialize(self):
         self._elevator.stop()
+        self._smartDashboard.putString("ElevatorPosition", str(self._elevator.currentPosition()))
 
     def execute(self):
         self._elevator.move(self._speed)
@@ -72,11 +75,19 @@ class MoveElevatorToPosition(Command):
         self._speed = robotmap.ElevatorSpeed
         self._smartDashboard = NetworkTables.getTable('SmartDashboard')
         self._targetPosition = position
+        self._timer = Timer()
 
     def initialize(self):
         self._elevator.stop()
+        self._timer.reset()
+        self._timer.start()
+        self._smartDashboard.putString("ElevatorPosition", str(self._elevator.currentPosition()))
         if self._elevator.currentPosition() > self._targetPosition.value:
             self._speed = - self._speed
+        if self._targetPosition == ElevatorPosition.INITIAL_DEPLOY:
+            while not self._timer.hasPeriodPassed(robotmap.Deploy_Delay):
+                continue
+            
 
     def execute(self):
         self._elevator.move(self._speed)
@@ -84,6 +95,8 @@ class MoveElevatorToPosition(Command):
         
     def isFinished(self):
         if self._elevator.currentPosition() == self._targetPosition.value:
+            return True
+        elif self._elevator.atLimit(ElevatorLimit.LOWER) or self._elevator.atLimit(ElevatorLimit.UPPER):
             return True
         else:
             return False

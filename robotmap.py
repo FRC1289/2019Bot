@@ -31,11 +31,11 @@ BB_ArmUp = 4
 BB_ArmDown = 3
 BB_ElevatorUp = 5
 BB_ElevatorDown = 6
-BB_LowHatch = 7
+BB_DeployArm = 7
 BB_MidHatch = 8
 BB_LowCargo = 9
 BB_MidCargo = 10
-BB_ArmMaxDown = 11
+BB_StowArm = 11
 
 camera_kP = 0.006
 camera_kI = 0
@@ -44,8 +44,8 @@ targetDistance = 300 # calibrate such that stops with 10" to go, then use encode
 dockingDistance = 100 # encoder clicks to get to final position
 approachSpeed = 0.4
 
-ArmSpeed = 0.5
-ElevatorSpeed = 0.5
+ArmSpeed = 0.75
+ElevatorSpeed = 0.75
 IngestSpeed = 0.2
 ExpelSpeed = 1.0
 JoystickDeadband = 0.05

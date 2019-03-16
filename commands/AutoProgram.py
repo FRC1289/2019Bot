@@ -1,14 +1,28 @@
 from wpilib.command.commandgroup import CommandGroup
 from subsystems.Arm import ArmPosition
 from subsystems.Elevator import ElevatorPosition
-from commands.MoveArm import MoveArmToPosition
-from commands.MoveElevator import MoveElevatorToPosition
+from commands.MoveArm import *
+from commands.MoveElevator import *
 
 __all__ = ['PositionLowHatch',
            'PositionMidHatch',
            'PositionLowCargo',
-           'PositionMidCargo']
+           'PositionMidCargo',
+           'StowArm',
+           'DeployArm']
+           
+class StowArm(CommandGroup):
+    def __init__(self):
+        super().__init__('StowArm')
+        self.addSequential(MoveElevatorUp())
+        self.addSequential(MoveArmDownToBottom())
 
+class DeployArm(CommandGroup):
+    def __init__(self):
+        super().__init__('DeployArm')
+        self.addSequential(MoveArmToInitialPosition())
+        self.addSequential(MoveElevatorToInitialPosition())
+        
 class PositionLowHatch(CommandGroup):
     def __init__(self):
         super().__init__('PositionLowHatch')

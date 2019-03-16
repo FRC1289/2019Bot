@@ -89,7 +89,7 @@ class DriveTrain(Subsystem):
         if abs(rawInput) < db:
             return 0.0
         else:
-            return pow(rawInput + db, 3) if rawInput < 0 else pow(rawInput - db, 3)
+            return pow(rawInput + db, 7) if rawInput < 0 else pow(rawInput - db, 7)
 
 
     def encoderPosition(self):

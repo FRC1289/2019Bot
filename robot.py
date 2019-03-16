@@ -57,12 +57,12 @@ class PyBot(CommandBasedRobot):
         self.buttonBoard = Joystick(robotmap.BB_port)
         self.armUpButton = JoystickButton(self.buttonBoard, robotmap.BB_ArmUp)
         self.armDownButton = JoystickButton(self.buttonBoard, robotmap.BB_ArmDown)
-        self.armMaxDownButton = JoystickButton(self.buttonBoard, robotmap.BB_ArmMaxDown)
+        self.stowArmButton = JoystickButton(self.buttonBoard, robotmap.BB_StowArm)
         self.elevatorUpButton = JoystickButton(self.buttonBoard, robotmap.BB_ElevatorUp)
         self.elevatorDownButton = JoystickButton(self.buttonBoard, robotmap.BB_ElevatorDown)
         self.ingestButton = JoystickButton(self.buttonBoard, robotmap.BB_ingest)
         self.expelButton = JoystickButton(self.buttonBoard, robotmap.BB_expel)
-        self.lowHatchButton = JoystickButton(self.buttonBoard, robotmap.BB_LowHatch)
+        self.deployArmButton = JoystickButton(self.buttonBoard, robotmap.BB_DeployArm)
         self.midHatchButton = JoystickButton(self.buttonBoard, robotmap.BB_MidHatch)
         self.lowCargoButton = JoystickButton(self.buttonBoard, robotmap.BB_LowCargo)
         self.midCargoButton = JoystickButton(self.buttonBoard, robotmap.BB_MidCargo)
@@ -71,7 +71,8 @@ class PyBot(CommandBasedRobot):
         self.armDownButton.whenPressed(MoveArmDown())
         self.armUpButton.whenReleased(CancelSubsystem(Cancel.ARM))
         self.armDownButton.whenReleased(CancelSubsystem(Cancel.ARM))
-        self.armMaxDownButton.whenPressed(MoveArmDownToBottom())
+        self.stowArmButton.whenPressed(StowArm())
+        #self.deployArmButton.whenPressed(DeployArm())
         
         self.elevatorUpButton.whenPressed(MoveElevatorUp())
         self.elevatorDownButton.whenPressed(MoveElevatorDown())
@@ -90,16 +91,12 @@ class PyBot(CommandBasedRobot):
         self._smartDashboard.putString("ArmLimit", "InGame")
  
 
-    def autonomousInit(self):
-         self.startCommand.start()
+    # def autonomousInit(self):
+    #      self.startCommand.start()
         
-    #def autonomousPeriodic(self):
+    # def autonomousPeriodic(self):
     #    Scheduler.getInstance().run()
-    #     if self.mainCommand.isCompleted():
-    #         self.logger.info('main is done')
-    #         self.mainCommand = FollowJoystick.FollowJoystick()
-    #         self.mainCommand.start()
-        
+
 
     # def teleopInit(self):
     #     self.mainCommand.start()

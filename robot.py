@@ -50,6 +50,7 @@ class PyBot(CommandBasedRobot):
         self.startCommand = DeployArm()
 
         self.joystick = Joystick(robotmap.STK_port)
+        self.halfPowerModeButton = JoystickButton(self.joystick, robotmap.STK_halfPowerMode)
       #  self.automaticMode = JoystickButton(self.joystick, robotmap.STK_automode)
        # self.automaticMode.whenPressed(DockRobot())
        # self.automaticMode.whenReleased(CancelSubsystem(Cancel.DRIVETRAIN))

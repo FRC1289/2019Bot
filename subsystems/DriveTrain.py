@@ -55,15 +55,16 @@ class DriveTrain(Subsystem):
     def drive(self, fwdbk, rot):
         self.driveTrain.arcadeDrive(fwdbk, rot/2.0)
 
-    def freeDrive(self, fwdbk, rot):
-        '''
-        use the supplied forwawrd and rotational args, drive per arguments
-        implement a dead band around 0 to avoid jitter
-        '''
-        self.driveTrain.arcadeDrive(self.deadBand(fwdbk), self.deadBand(rot), False)
+    def freeDrive(self, fwdbk, rot, halfPowerMode):
+        f = fwdbk * robotmap.HalfPowerModifier
+        r = rot * robotmap.HalfPowerModifier
+        if halfPowerMode:
+            self.driveTrain.arcadeDrive(f, r)
+        else:
+            self.driveTrain.arcadeDrive(self.deadBand(fwdbk), self.deadBand(rot), False)
   
     def reset(self):
-        self.freeDrive(0,0)
+        self.freeDrive(0,0, True)
 #        self.gyro.reset()
 
     def stop(self):

@@ -23,7 +23,7 @@ DIO_armInGameLowerLimit = 9
 STK_port = 0
 BB_port = 1
 
-STK_automode = 1
+STK_halfPowerMode = 1
 
 BB_ingest = 1
 BB_expel = 2
@@ -49,6 +49,7 @@ ElevatorSpeed = 0.75
 IngestSpeed = 0.2
 ExpelSpeed = 1.0
 JoystickDeadband = 0.05
+HalfPowerModifier = 0.5
 
 Deploy_Delay = 2.0
 

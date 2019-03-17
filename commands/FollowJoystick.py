@@ -14,6 +14,7 @@ class FollowJoystick(Command):
         self.drivetrain = self.getRobot().drivetrain
         self.requires(self.drivetrain)
         self.logger = self.getRobot().logger
+        self._halfPowerModeButton = self.getRobot().halfPowerModeButton
         self.setInterruptible(True)
         
 
@@ -25,7 +26,7 @@ class FollowJoystick(Command):
         rot = - self.getRobot().joystick.getX()
         #(a1, a2) = self.drivetrain.getEncoderCount()
         #self.count = self.count + a1 + a2
-        self.drivetrain.freeDrive(fwdbk, rot)
+        self.drivetrain.freeDrive(fwdbk, rot, self._halfPowerModeButton.get())
     
 
     def isFinished(self):
@@ -36,7 +37,7 @@ class FollowJoystick(Command):
     #         return False
 
     def end(self):
-        self.drivetrain.freeDrive(0,0)
+        self.drivetrain.freeDrive(0,0, True)
 
     def interrupted(self):
         self.logger.info('FS interrupted')
